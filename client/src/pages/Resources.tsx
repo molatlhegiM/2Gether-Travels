@@ -1,406 +1,382 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import MobileCTA from "@/components/MobileCTA";
+import { useQuery } from "@tanstack/react-query";
+import { Download, FileText, MapPin, Shield, Plane, CreditCard, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { 
-  Download, 
-  FileText, 
-  MapPin, 
-  Calendar, 
-  Plane, 
-  Building,
-  CreditCard,
-  Phone,
-  Shield,
-  Globe,
-  Clock,
-  Users
-} from "lucide-react";
-import { trackEvent } from "@/lib/analytics";
-
-const resources = [
-  {
-    category: "Conference Information",
-    icon: Building,
-    items: [
-      {
-        title: "AFIIA 2026 Delegate Guide",
-        description: "Complete conference program, venues, and networking schedule",
-        type: "PDF Download",
-        icon: FileText,
-        action: "download"
-      },
-      {
-        title: "Conference Venue Map",
-        description: "Detailed floor plans and room locations for all sessions",
-        type: "PDF Download", 
-        icon: MapPin,
-        action: "download"
-      },
-      {
-        title: "Networking Events Schedule",
-        description: "All official and unofficial networking opportunities",
-        type: "PDF Download",
-        icon: Calendar,
-        action: "download"
-      }
-    ]
-  },
-  {
-    category: "Travel Documentation",
-    icon: Plane,
-    items: [
-      {
-        title: "South Africa Visa Requirements",
-        description: "Entry requirements and visa application process for your country",
-        type: "Interactive Guide",
-        icon: Globe,
-        action: "view"
-      },
-      {
-        title: "Cape Town Travel Guide",
-        description: "Essential information about the city, culture, and attractions",
-        type: "PDF Download",
-        icon: MapPin,
-        action: "download"
-      },
-      {
-        title: "Packing Checklist",
-        description: "What to pack for May weather and professional meetings",
-        type: "PDF Download",
-        icon: FileText,
-        action: "download"
-      }
-    ]
-  },
-  {
-    category: "Booking Support",
-    icon: CreditCard,
-    items: [
-      {
-        title: "Booking Help Center",
-        description: "Step-by-step guide to completing your travel booking",
-        type: "Online Guide",
-        icon: Users,
-        action: "view"
-      },
-      {
-        title: "Corporate Booking Guide",
-        description: "Instructions for procurement teams and invoice processing",
-        type: "PDF Download", 
-        icon: Building,
-        action: "download"
-      },
-      {
-        title: "Payment Options Guide",
-        description: "All available payment methods and corporate billing options",
-        type: "Online Guide",
-        icon: CreditCard,
-        action: "view"
-      }
-    ]
-  }
-];
-
-const quickLinks = [
-  {
-    title: "Emergency Contacts",
-    description: "24/7 support numbers and emergency assistance",
-    icon: Phone,
-    color: "bg-red-500"
-  },
-  {
-    title: "Travel Insurance",
-    description: "Coverage options and claim procedures",
-    icon: Shield,
-    color: "bg-teal"
-  },
-  {
-    title: "Airport Information",
-    description: "Cape Town International Airport guide and transfers",
-    icon: Plane,
-    color: "bg-navy"
-  },
-  {
-    title: "Time Zone & Weather",
-    description: "Local time, weather forecasts, and what to expect",
-    icon: Clock,
-    color: "bg-gold"
-  }
-];
-
-const faqSections = [
-  {
-    title: "Booking & Payments",
-    items: [
-      {
-        question: "Can I modify my booking after confirmation?",
-        answer: "Yes, modifications are allowed up to 30 days before travel. Changes may incur fees depending on the type of modification and supplier policies. Our concierge team assists with all changes."
-      },
-      {
-        question: "Do you accept corporate invoices?",
-        answer: "Absolutely. We work with corporate finance teams and can process payments via invoice with NET 30 terms. PO numbers are accepted and all necessary documentation is provided."
-      },
-      {
-        question: "What happens if my flight is cancelled?",
-        answer: "Our concierge team will immediately assist with rebooking and accommodation adjustments. We work with your airline and our partners to minimize disruption to your conference attendance."
-      }
-    ]
-  },
-  {
-    title: "Travel & Visa",
-    items: [
-      {
-        question: "Do I need a visa to enter South Africa?",
-        answer: "Visa requirements depend on your nationality. Citizens of many countries can enter visa-free for short stays. Check our visa guide or consult the South African embassy in your country."
-      },
-      {
-        question: "What documents do I need for travel?",
-        answer: "You'll need a valid passport with at least 6 months validity and 2 blank pages. Some nationalities require visas. We recommend carrying copies of all documents and keeping originals secure."
-      },
-      {
-        question: "Is Cape Town safe for international visitors?",
-        answer: "Cape Town is generally safe for tourists who take standard precautions. Our partners provide secure transfers and vetted accommodations. Our concierge team provides local safety guidance."
-      }
-    ]
-  },
-  {
-    title: "Conference Support",
-    items: [
-      {
-        question: "How do I get to the conference venue each day?",
-        answer: "All our packages include daily transfers to the conference venue. Shared shuttles run on schedule, while private transfers offer flexible timing based on your preferences."
-      },
-      {
-        question: "Can you help with networking introductions?",
-        answer: "Our networking tours are specifically designed to facilitate professional connections. Our guides help with introductions and our concierge can arrange business meetings."
-      },
-      {
-        question: "What if I need to extend my stay?",
-        answer: "We can help arrange extended accommodation and modify your return transfers. Contact our concierge team as early as possible for the best rates and availability."
-      }
-    ]
-  }
-];
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import type { FAQ } from "@shared/schema";
 
 export default function Resources() {
-  const handleDownload = (resourceTitle: string) => {
-    trackEvent('download_resource', 'resources', `download_${resourceTitle.toLowerCase().replace(/\s+/g, '_')}`);
-    // TODO: Implement actual download functionality
-    console.log(`Download: ${resourceTitle}`);
+  const { data: faqs } = useQuery<FAQ[]>({
+    queryKey: ["/api/faqs"],
+  });
+
+  const handleDownload = (resource: string) => {
+    // In a real implementation, this would trigger actual file downloads
+    toast({
+      title: "Download Started",
+      description: `${resource} is being downloaded to your device.`,
+    });
   };
 
-  const handleViewGuide = (guideTitle: string) => {
-    trackEvent('view_guide', 'resources', `view_${guideTitle.toLowerCase().replace(/\s+/g, '_')}`);
-    // TODO: Implement guide viewing functionality
-    console.log(`View: ${guideTitle}`);
+  const handleWhatsAppClick = () => {
+    const message = encodeURIComponent("Hello! I have a question about AFIIA 2026 travel arrangements.");
+    window.open(`https://wa.me/27211234567?text=${message}`, '_blank');
   };
+
+  const resources = [
+    {
+      title: "AFIIA 2026 Delegate Guide",
+      description: "Complete guide covering travel, accommodation, and conference information",
+      size: "2.3 MB",
+      type: "PDF",
+      category: "Essential",
+    },
+    {
+      title: "Cape Town Travel Essentials",
+      description: "Visa requirements, currency, weather, and local customs guide",
+      size: "1.8 MB",
+      type: "PDF", 
+      category: "Travel Info",
+    },
+    {
+      title: "Professional Packing Checklist",
+      description: "What to pack for business travel and networking events in Cape Town",
+      size: "450 KB",
+      type: "PDF",
+      category: "Travel Tips",
+    },
+    {
+      title: "Hotel & Venue Maps",
+      description: "Detailed maps showing hotel locations and routes to conference venue",
+      size: "3.1 MB",
+      type: "PDF",
+      category: "Navigation",
+    },
+    {
+      title: "Corporate Booking Guide",
+      description: "Instructions for invoice processing, PO requirements, and expense reporting",
+      size: "1.2 MB",
+      type: "PDF",
+      category: "Business",
+    },
+    {
+      title: "Emergency Contacts Card",
+      description: "Important phone numbers and addresses for emergencies in Cape Town",
+      size: "200 KB",
+      type: "PDF",
+      category: "Safety",
+    }
+  ];
+
+  const travelTips = [
+    {
+      icon: Plane,
+      title: "Flight & Visa Information",
+      tips: [
+        "Book flights 6-8 weeks in advance for best rates",
+        "Check visa requirements 60 days before travel", 
+        "Arrive 1 day early to adjust for time zone differences",
+        "Consider travel insurance for international trips"
+      ]
+    },
+    {
+      icon: Shield,
+      title: "Safety & Health",
+      tips: [
+        "Cape Town is generally safe for business travelers",
+        "Use hotel safes for valuables and documents",
+        "Stay in groups when exploring the city in the evening",
+        "Keep copies of important documents in separate luggage"
+      ]
+    },
+    {
+      icon: CreditCard,
+      title: "Money & Payments",
+      tips: [
+        "South African Rand (ZAR) is the local currency",
+        "US Dollars widely accepted at hotels and major venues",
+        "Credit cards accepted at most professional establishments",
+        "Notify your bank of international travel plans"
+      ]
+    },
+    {
+      icon: MapPin,
+      title: "Local Etiquette",
+      tips: [
+        "Business dress code is formal during conference hours",
+        "Smart casual appropriate for networking events",
+        "Tipping 10-15% is standard at restaurants",
+        "Handshakes are the standard business greeting"
+      ]
+    }
+  ];
 
   return (
-    <div className="min-h-screen" data-testid="page-resources">
-      <Header />
-      
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="gradient-primary text-white py-20 lg:py-24">
+      <section className="bg-gradient-to-br from-navy to-afiia-blue text-white py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="bg-gold text-navy px-4 py-2 mb-6 text-sm font-medium">
+            <h1 className="font-heading font-bold text-4xl lg:text-6xl mb-6" data-testid="heading-resources">
               Travel Resources & Support
-            </Badge>
-            <h1 className="font-inter font-bold text-4xl lg:text-6xl mb-6" data-testid="text-resources-hero-title">
-              Everything You Need for <span className="text-gold">AFIIA 2026</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-white/90 max-w-3xl mx-auto" data-testid="text-resources-hero-subtitle">
-              Comprehensive guides, documents, and support resources to ensure your 
-              Cape Town conference experience is seamless from start to finish.
+            <p className="text-xl lg:text-2xl mb-8 text-white/90">
+              Everything you need for a successful AFIIA 2026 experience in Cape Town.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Links */}
-      <section className="py-16 lg:py-24 bg-mist">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-quick-links-title">
-              Quick Access
-            </h2>
-            <p className="text-slate text-lg max-w-2xl mx-auto">
-              Essential information at your fingertips
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {quickLinks.map((link, index) => {
-              const IconComponent = link.icon;
-              return (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow cursor-pointer" data-testid={`card-quick-link-${index}`}>
-                  <CardContent className="p-6">
-                    <div className={`w-12 h-12 ${link.color} rounded-card mx-auto mb-4 flex items-center justify-center`}>
-                      <IconComponent className="text-white h-6 w-6" />
-                    </div>
-                    <h3 className="font-inter font-semibold text-navy mb-2" data-testid={`text-quick-link-title-${index}`}>
-                      {link.title}
-                    </h3>
-                    <p className="text-slate text-sm">{link.description}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Resource Categories */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-resources-title">
-              Travel Resources
-            </h2>
-            <p className="text-slate text-lg max-w-2xl mx-auto">
-              Download guides, access interactive tools, and get all the information you need 
-              for a successful conference experience.
-            </p>
-          </div>
-          
-          <div className="space-y-12 max-w-6xl mx-auto">
-            {resources.map((category, categoryIndex) => {
-              const CategoryIcon = category.icon;
-              return (
-                <div key={categoryIndex} data-testid={`section-resource-category-${categoryIndex}`}>
-                  <div className="flex items-center space-x-3 mb-8">
-                    <div className="w-10 h-10 bg-gradient-to-br from-navy to-teal rounded-card flex items-center justify-center">
-                      <CategoryIcon className="text-white h-6 w-6" />
-                    </div>
-                    <h3 className="font-inter font-bold text-2xl text-navy">{category.category}</h3>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {category.items.map((item, itemIndex) => {
-                      const ItemIcon = item.icon;
-                      return (
-                        <Card key={itemIndex} className="hover:shadow-lg transition-shadow" data-testid={`card-resource-${categoryIndex}-${itemIndex}`}>
-                          <CardHeader>
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-mist rounded-card flex items-center justify-center">
-                                  <ItemIcon className="text-navy h-5 w-5" />
-                                </div>
-                                <div>
-                                  <CardTitle className="text-lg text-navy" data-testid={`text-resource-title-${categoryIndex}-${itemIndex}`}>
-                                    {item.title}
-                                  </CardTitle>
-                                  <Badge variant="secondary" className="text-xs mt-1">
-                                    {item.type}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-slate text-sm mb-4">{item.description}</p>
-                            <Button
-                              className={`w-full ${item.action === 'download' ? 'btn-primary' : 'btn-secondary'}`}
-                              onClick={() => item.action === 'download' ? handleDownload(item.title) : handleViewGuide(item.title)}
-                              data-testid={`button-resource-${categoryIndex}-${itemIndex}`}
-                            >
-                              {item.action === 'download' ? (
-                                <>
-                                  <Download className="mr-2 h-4 w-4" />
-                                  Download
-                                </>
-                              ) : (
-                                <>
-                                  <FileText className="mr-2 h-4 w-4" />
-                                  View Guide
-                                </>
-                              )}
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16 lg:py-24 bg-mist">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-faq-title">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-slate text-lg max-w-2xl mx-auto">
-              Find answers to common questions about booking, travel, and conference attendance
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            {faqSections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="mb-8" data-testid={`section-faq-${sectionIndex}`}>
-                <h3 className="font-inter font-semibold text-xl text-navy mb-4">{section.title}</h3>
-                <Accordion type="single" collapsible className="space-y-2">
-                  {section.items.map((item, itemIndex) => (
-                    <AccordionItem key={itemIndex} value={`${sectionIndex}-${itemIndex}`} className="bg-white rounded-card shadow-soft px-6">
-                      <AccordionTrigger className="text-left font-medium text-navy hover:no-underline" data-testid={`button-faq-${sectionIndex}-${itemIndex}`}>
-                        {item.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-slate" data-testid={`text-faq-answer-${sectionIndex}-${itemIndex}`}>
-                        {item.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm flex items-center">
+                <FileText className="h-4 w-4 mr-2" />
+                Comprehensive guides & checklists
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Support CTA */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-navy text-white rounded-card p-12">
-              <h3 className="font-inter font-bold text-3xl mb-6">Still Need Help?</h3>
-              <p className="text-white/90 text-lg mb-8">
-                Our support team is available 24/7 to assist with any questions about your 
-                AFIIA 2026 travel plans.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  className="bg-afiia-green hover:bg-afiia-green/90 text-white font-medium px-8 py-4 rounded-cta inline-flex items-center"
-                  onClick={() => trackEvent('click_whatsapp_support', 'support', 'resources_whatsapp')}
-                  data-testid="button-whatsapp-support"
-                >
-                  <Phone className="mr-3 h-5 w-5" />
-                  WhatsApp Support
-                </Button>
-                <Button
-                  variant="outline"
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 font-medium px-8 py-4 rounded-cta"
-                  onClick={() => trackEvent('click_email_support', 'support', 'resources_email')}
-                  data-testid="button-email-support"
-                >
-                  Email Us
-                </Button>
+              <div className="bg-gold text-navy px-4 py-2 rounded-full text-sm">
+                Professional travel support
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <Footer />
-      <MobileCTA />
+      {/* Downloadable Resources */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-downloads">
+              Download Essential Guides
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              Comprehensive resources to help you prepare for your Cape Town conference experience
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource, index) => (
+              <Card key={index} className="card-base" data-testid={`resource-${index}`}>
+                <CardHeader>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-teal to-gold rounded-card flex items-center justify-center">
+                      <FileText className="h-6 w-6 text-white" />
+                    </div>
+                    <Badge variant="outline">{resource.category}</Badge>
+                  </div>
+                  <h3 className="font-heading font-semibold text-lg text-navy mb-2">{resource.title}</h3>
+                  <p className="text-slate text-sm">{resource.description}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-slate">
+                      {resource.type} • {resource.size}
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="btn-primary"
+                      onClick={() => handleDownload(resource.title)}
+                      data-testid={`button-download-${index}`}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Travel Tips */}
+      <section className="py-16 lg:py-24 bg-mist">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-travel-tips">
+              Professional Travel Tips
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              Expert advice for business travelers visiting Cape Town
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {travelTips.map((category, index) => (
+              <Card key={index} className="card-base p-6" data-testid={`tip-category-${index}`}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-navy to-teal rounded-card flex items-center justify-center mr-4">
+                    <category.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-heading font-semibold text-xl text-navy">{category.title}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {category.tips.map((tip, tipIndex) => (
+                    <li key={tipIndex} className="flex items-start text-slate" data-testid={`tip-${index}-${tipIndex}`}>
+                      <div className="w-2 h-2 bg-teal rounded-full mt-2 mr-3 flex-shrink-0" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-faq">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              Quick answers to common questions about AFIIA 2026 travel
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <Accordion type="single" collapsible>
+              {faqs?.map((faq) => (
+                <AccordionItem key={faq.id} value={faq.id} data-testid={`faq-item-${faq.id}`}>
+                  <AccordionTrigger className="text-left font-heading font-semibold text-navy">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-slate">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      {/* Travel Insurance Information */}
+      <section className="py-16 lg:py-24 bg-mist">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-insurance">
+                Travel Insurance Information
+              </h2>
+              <p className="text-slate text-lg">
+                Important information about travel insurance for your AFIIA 2026 trip
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="card-base p-6">
+                <h3 className="font-heading font-semibold text-xl text-navy mb-4">Why You Need Travel Insurance</h3>
+                <ul className="space-y-3 text-slate">
+                  <li className="flex items-start">
+                    <Shield className="h-4 w-4 text-teal mt-1 mr-3 flex-shrink-0" />
+                    Medical emergencies and hospital coverage
+                  </li>
+                  <li className="flex items-start">
+                    <Shield className="h-4 w-4 text-teal mt-1 mr-3 flex-shrink-0" />
+                    Trip cancellation and interruption protection
+                  </li>
+                  <li className="flex items-start">
+                    <Shield className="h-4 w-4 text-teal mt-1 mr-3 flex-shrink-0" />
+                    Lost luggage and personal effects coverage
+                  </li>
+                  <li className="flex items-start">
+                    <Shield className="h-4 w-4 text-teal mt-1 mr-3 flex-shrink-0" />
+                    Flight delay and missed connection assistance
+                  </li>
+                </ul>
+              </Card>
+
+              <Card className="card-base p-6">
+                <h3 className="font-heading font-semibold text-xl text-navy mb-4">Recommended Coverage</h3>
+                <ul className="space-y-3 text-slate">
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-gold rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Medical coverage: Minimum $100,000
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-gold rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Trip cancellation: Full trip cost
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-gold rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Baggage protection: $2,500-5,000
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-gold rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Emergency evacuation coverage included
+                  </li>
+                </ul>
+              </Card>
+            </div>
+
+            <div className="text-center mt-8">
+              <p className="text-slate mb-4">
+                We recommend purchasing travel insurance within 14 days of your initial trip payment for maximum coverage.
+              </p>
+              <Button 
+                className="btn-primary"
+                onClick={() => handleDownload("Travel Insurance Guide")}
+                data-testid="button-insurance-guide"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Insurance Guide
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Support Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-support">
+              Need More Help?
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              Our travel experts are available to assist with any questions about your AFIIA 2026 journey
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="card-base p-6 text-center">
+              <div className="w-16 h-16 bg-afiia-green rounded-card mx-auto mb-6 flex items-center justify-center">
+                <MessageCircle className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg text-navy mb-4">WhatsApp Support</h3>
+              <p className="text-slate mb-6">Quick questions and real-time assistance</p>
+              <Button 
+                className="bg-afiia-green hover:bg-afiia-green/90 text-white w-full"
+                onClick={handleWhatsAppClick}
+                data-testid="button-whatsapp-support"
+              >
+                Chat on WhatsApp
+              </Button>
+            </Card>
+
+            <Card className="card-base p-6 text-center">
+              <div className="w-16 h-16 bg-navy rounded-card mx-auto mb-6 flex items-center justify-center">
+                <Phone className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg text-navy mb-4">Phone Consultation</h3>
+              <p className="text-slate mb-6">Detailed travel planning assistance</p>
+              <Button variant="outline" className="w-full" data-testid="button-phone-support">
+                +27 21 123 4567
+              </Button>
+            </Card>
+
+            <Card className="card-base p-6 text-center">
+              <div className="w-16 h-16 bg-teal rounded-card mx-auto mb-6 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg text-navy mb-4">Email Support</h3>
+              <p className="text-slate mb-6">Detailed inquiries and documentation</p>
+              <Button variant="outline" className="w-full" data-testid="button-email-support">
+                afiia2026@2gethertravels.com
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

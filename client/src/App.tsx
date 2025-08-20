@@ -5,19 +5,19 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import Packages from "@/pages/packages";
-import Hotels from "@/pages/hotels";
-import Transfers from "@/pages/transfers";
-import Tours from "@/pages/tours";
-import Concierge from "@/pages/concierge";
-import About from "@/pages/about";
-import Partners from "@/pages/partners";
-import Resources from "@/pages/resources";
-import Contact from "@/pages/contact";
-import Booking from "@/pages/booking";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Home from "@/pages/Home";
+import Packages from "@/pages/Packages";
+import Hotels from "@/pages/Hotels";
+import Transfers from "@/pages/Transfers";
+import Tours from "@/pages/Tours";
+import Concierge from "@/pages/Concierge";
+import About from "@/pages/About";
+import Partners from "@/pages/Partners";
+import Resources from "@/pages/Resources";
+import Contact from "@/pages/Contact";
+import Booking from "@/pages/Booking";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 function Router() {
   return (

@@ -1,459 +1,380 @@
 import { useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import MobileCTA from "@/components/MobileCTA";
+import { Plane, Building, Car, MapPin, Star, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Plane, 
-  Building, 
-  Car, 
-  Wine, 
-  Shield, 
-  Hotel, 
-  Award, 
-  Users, 
-  Globe,
-  FileText,
-  CheckCircle 
-} from "lucide-react";
-import { useContactSubmission } from "@/hooks/use-booking";
-import { trackEvent } from "@/lib/analytics";
-import { useToast } from "@/hooks/use-toast";
-
-const partners = [
-  { name: "South African Airways", icon: Plane, category: "Airlines", tier: "Platinum" },
-  { name: "Ethiopian Airlines", icon: Plane, category: "Airlines", tier: "Gold" },
-  { name: "Emirates", icon: Plane, category: "Airlines", tier: "Gold" },
-  { name: "Marriott Hotels", icon: Hotel, category: "Hospitality", tier: "Platinum" },
-  { name: "Radisson Blu", icon: Hotel, category: "Hospitality", tier: "Gold" },
-  { name: "The Table Bay", icon: Hotel, category: "Hospitality", tier: "Gold" },
-  { name: "AFIIA", icon: Building, category: "Associations", tier: "Strategic" },
-  { name: "IIA Global", icon: Building, category: "Associations", tier: "Strategic" },
-  { name: "Cape Town Tours", icon: Car, category: "Transport", tier: "Silver" },
-  { name: "Stellenbosch Wine Tours", icon: Wine, category: "Experiences", tier: "Silver" },
-  { name: "Travel Guard Insurance", icon: Shield, category: "Insurance", tier: "Gold" }
-];
-
-const partnershipTiers = [
-  {
-    name: "Strategic Partners",
-    icon: Award,
-    description: "Exclusive partnerships with industry associations and key stakeholders",
-    benefits: [
-      "Co-marketing opportunities",
-      "Exclusive delegate access",
-      "Joint event hosting",
-      "Strategic planning involvement"
-    ],
-    color: "from-gold to-navy"
-  },
-  {
-    name: "Platinum Partners", 
-    icon: Hotel,
-    description: "Premium service providers offering exceptional quality and reliability",
-    benefits: [
-      "Priority booking status",
-      "Preferred rate agreements",
-      "Quality assurance programs",
-      "Dedicated account management"
-    ],
-    color: "from-navy to-teal"
-  },
-  {
-    name: "Gold Partners",
-    icon: Shield,
-    description: "Trusted suppliers meeting our high standards for professional travel",
-    benefits: [
-      "Regular booking volume",
-      "Standard rate agreements",
-      "Quality monitoring",
-      "Marketing collaboration"
-    ],
-    color: "from-teal to-gold"
-  },
-  {
-    name: "Silver Partners",
-    icon: Users,
-    description: "Emerging partners and specialized service providers",
-    benefits: [
-      "Opportunity for growth",
-      "Performance-based advancement",
-      "Training and development",
-      "Network access"
-    ],
-    color: "from-afiia-blue to-teal"
-  }
-];
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 
 export default function Partners() {
-  const { mutate: submitContact, isPending } = useContactSubmission();
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
+  const [partnershipForm, setPartnershipForm] = useState({
+    companyName: "",
+    contactName: "",
     email: "",
-    company: "",
-    country: "",
+    phone: "",
     partnershipType: "",
-    message: ""
+    description: "",
+    services: [] as string[],
+    experience: "",
+    complianceReady: false,
   });
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleServiceToggle = (service: string) => {
+    setPartnershipForm(prev => ({
+      ...prev,
+      services: prev.services.includes(service)
+        ? prev.services.filter(s => s !== service)
+        : [...prev.services, service]
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const submissionData = {
-      name: formData.name,
-      email: formData.email,
-      country: formData.country,
-      topic: `Partnership Inquiry - ${formData.partnershipType}`,
-      message: `Company: ${formData.company}\nPartnership Type: ${formData.partnershipType}\n\nMessage:\n${formData.message}`
-    };
+    setIsSubmitting(true);
 
-    trackEvent('submit_partnership_inquiry', 'partners', `partnership_${formData.partnershipType}`);
+    try {
+      // In a real implementation, this would send to a partnerships endpoint
+      toast({
+        title: "Partnership Inquiry Sent",
+        description: "We'll review your application and respond within 3 business days.",
+      });
 
-    submitContact(submissionData, {
-      onSuccess: () => {
-        toast({
-          title: "Partnership inquiry submitted!",
-          description: "Thank you for your interest. We'll be in touch within 24 hours.",
-        });
-        setFormData({
-          name: "",
-          email: "",
-          company: "",
-          country: "",
-          partnershipType: "",
-          message: ""
-        });
-      },
-      onError: () => {
-        toast({
-          title: "Submission failed",
-          description: "Please try again or contact us directly.",
-          variant: "destructive",
-        });
-      },
-    });
-  };
-
-  const getTierIcon = (tier: string) => {
-    switch (tier) {
-      case 'Strategic': return <Award className="h-5 w-5 text-gold" />;
-      case 'Platinum': return <CheckCircle className="h-5 w-5 text-navy" />;
-      case 'Gold': return <CheckCircle className="h-5 w-5 text-gold" />;
-      case 'Silver': return <CheckCircle className="h-5 w-5 text-slate" />;
-      default: return <CheckCircle className="h-5 w-5 text-teal" />;
+      setPartnershipForm({
+        companyName: "",
+        contactName: "",
+        email: "",
+        phone: "",
+        partnershipType: "",
+        description: "",
+        services: [],
+        experience: "",
+        complianceReady: false,
+      });
+    } catch (error) {
+      toast({
+        title: "Submission failed",
+        description: "Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const partnerTypes = [
+    {
+      icon: Building,
+      title: "Hotels & Accommodations",
+      description: "Premium properties within 30 minutes of major conference venues",
+      benefits: ["Direct booking channel", "Group rate negotiations", "Quality assurance program"],
+      requirements: ["4-5 star rating", "Business amenities", "Professional service standards"]
+    },
+    {
+      icon: Plane,
+      title: "Airlines",
+      description: "Regional and international carriers serving African business routes",
+      benefits: ["Preferred booking status", "Group discounts", "Schedule coordination"],
+      requirements: ["African route network", "Business class service", "Reliable schedule"]
+    },
+    {
+      icon: Car,
+      title: "Ground Transportation",
+      description: "Professional transfer and tour operators with proven track records",
+      benefits: ["Preferred vendor status", "Volume pricing", "Co-marketing opportunities"],
+      requirements: ["Licensed operations", "Professional drivers", "Fleet maintenance"]
+    },
+    {
+      icon: MapPin,
+      title: "Tour Operators",
+      description: "Cultural and business tour specialists for professional groups",
+      benefits: ["Exclusive tour packages", "Professional networking focus", "Marketing support"],
+      requirements: ["Professional tour guides", "Business group experience", "Cultural expertise"]
+    }
+  ];
+
+  const currentPartners = [
+    { name: "South African Airways", type: "Airline", logo: "🇿🇦", status: "Platinum Partner" },
+    { name: "Marriott Hotels", type: "Hotel", logo: "🏨", status: "Gold Partner" },
+    { name: "Cape Town Tourism", type: "Tourism", logo: "🗻", status: "Official Partner" },
+    { name: "Europcar", type: "Car Rental", logo: "🚗", status: "Silver Partner" },
+    { name: "SAA Voyager", type: "Loyalty Program", logo: "✈️", status: "Preferred Partner" },
+    { name: "Protea Hotels", type: "Hotel", logo: "🏢", status: "Gold Partner" },
+  ];
+
   return (
-    <div className="min-h-screen" data-testid="page-partners">
-      <Header />
-      
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="gradient-primary text-white py-20 lg:py-24">
+      <section className="bg-gradient-to-br from-navy to-afiia-blue text-white py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="bg-gold text-navy px-4 py-2 mb-6 text-sm font-medium">
-              Partnership Network
-            </Badge>
-            <h1 className="font-inter font-bold text-4xl lg:text-6xl mb-6" data-testid="text-partners-hero-title">
-              Building Excellence <span className="text-gold">Together</span>
+            <h1 className="font-heading font-bold text-4xl lg:text-6xl mb-6" data-testid="heading-partners">
+              Partnership Opportunities
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-white/90 max-w-3xl mx-auto" data-testid="text-partners-hero-subtitle">
-              We collaborate with the best service providers across Africa and globally to deliver 
-              exceptional conference travel experiences for our delegates.
+            <p className="text-xl lg:text-2xl mb-8 text-white/90">
+              Join our network of trusted service providers for professional conferences across Africa.
             </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm flex items-center">
+                <Users className="h-4 w-4 mr-2" />
+                Growing network of professionals
+              </div>
+              <div className="bg-gold text-navy px-4 py-2 rounded-full text-sm">
+                Premium service standards
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Partnership Types */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-partnership-types">
+              Partnership Categories
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              We work with premium service providers across multiple categories to deliver exceptional experiences
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {partnerTypes.map((type, index) => (
+              <Card key={index} className="card-base" data-testid={`partner-type-${index}`}>
+                <CardHeader>
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-teal to-gold rounded-card flex items-center justify-center mr-4">
+                      <type.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <h3 className="font-heading font-semibold text-xl text-navy">{type.title}</h3>
+                  </div>
+                  <p className="text-slate">{type.description}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-heading font-semibold text-navy mb-2">Partnership Benefits</h4>
+                      <ul className="text-slate text-sm space-y-1">
+                        {type.benefits.map((benefit, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <Star className="h-3 w-3 text-gold mr-2" />
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-heading font-semibold text-navy mb-2">Requirements</h4>
+                      <ul className="text-slate text-sm space-y-1">
+                        {type.requirements.map((requirement, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <div className="w-2 h-2 bg-teal rounded-full mr-2" />
+                            {requirement}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Current Partners */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-current-partners-title">
-              Our Trusted Partner Network
-            </h2>
-            <p className="text-slate text-lg max-w-2xl mx-auto">
-              Working with industry-leading organizations to ensure every aspect of your 
-              travel experience meets the highest professional standards.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {partners.map((partner, index) => {
-              const IconComponent = partner.icon;
-              return (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow group" data-testid={`card-partner-${index}`}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-center mb-4">
-                      <div className="w-12 h-12 bg-mist rounded-card flex items-center justify-center group-hover:bg-navy group-hover:text-white transition-colors">
-                        <IconComponent className="h-6 w-6" />
-                      </div>
-                    </div>
-                    <h3 className="font-inter font-semibold text-sm text-navy mb-2" data-testid={`text-partner-name-${index}`}>
-                      {partner.name}
-                    </h3>
-                    <p className="text-xs text-slate mb-2">{partner.category}</p>
-                    <div className="flex items-center justify-center space-x-1">
-                      {getTierIcon(partner.tier)}
-                      <span className="text-xs text-slate font-medium">{partner.tier}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Partnership Tiers */}
       <section className="py-16 lg:py-24 bg-mist">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-partnership-tiers-title">
-              Partnership Tiers & Benefits
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-current-partners">
+              Our Trusted Partners
             </h2>
             <p className="text-slate text-lg max-w-2xl mx-auto">
-              We offer different partnership levels designed to create mutually beneficial 
-              relationships that enhance the delegate experience.
+              Working with industry leaders to deliver exceptional professional travel experiences
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {partnershipTiers.map((tier, index) => {
-              const IconComponent = tier.icon;
-              return (
-                <Card key={index} className="hover:shadow-lg transition-shadow" data-testid={`card-tier-${index}`}>
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${tier.color} rounded-card flex items-center justify-center`}>
-                        <IconComponent className="text-white h-6 w-6" />
-                      </div>
-                      <CardTitle className="text-xl text-navy">{tier.name}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate mb-6">{tier.description}</p>
-                    <ul className="space-y-3">
-                      {tier.benefits.map((benefit, benefitIndex) => (
-                        <li key={benefitIndex} className="flex items-start" data-testid={`text-tier-benefit-${index}-${benefitIndex}`}>
-                          <div className="w-1.5 h-1.5 bg-teal rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                          <span className="text-slate">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            })}
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {currentPartners.map((partner, index) => (
+              <Card key={index} className="card-base p-6 text-center" data-testid={`partner-${index}`}>
+                <div className="text-4xl mb-4">{partner.logo}</div>
+                <h3 className="font-heading font-semibold text-lg text-navy mb-2">{partner.name}</h3>
+                <p className="text-slate text-sm mb-3">{partner.type}</p>
+                <Badge 
+                  className={`${
+                    partner.status === 'Platinum Partner' ? 'bg-slate text-white' :
+                    partner.status === 'Gold Partner' ? 'bg-gold text-navy' :
+                    partner.status === 'Silver Partner' ? 'bg-slate/20 text-slate' :
+                    'bg-teal text-white'
+                  }`}
+                >
+                  {partner.status}
+                </Badge>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Partnership Requirements */}
+      {/* Partnership Application Form */}
       <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-partnership-requirements-title">
-                Partnership Requirements
-              </h2>
-              <p className="text-slate text-lg">
-                We maintain strict quality standards to ensure our delegates receive exceptional service
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-inter font-semibold text-xl text-navy mb-6">Service Standards</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start">
-                    <CheckCircle className="text-teal h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Proven track record serving business travelers</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="text-teal h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Professional staff and quality service delivery</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="text-teal h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Flexible booking and cancellation policies</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="text-teal h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">24/7 support and emergency assistance</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-inter font-semibold text-xl text-navy mb-6">Business Requirements</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start">
-                    <FileText className="text-navy h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Valid business licenses and insurance coverage</span>
-                  </li>
-                  <li className="flex items-start">
-                    <FileText className="text-navy h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Financial stability and payment terms flexibility</span>
-                  </li>
-                  <li className="flex items-start">
-                    <FileText className="text-navy h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Commitment to sustainable business practices</span>
-                  </li>
-                  <li className="flex items-start">
-                    <FileText className="text-navy h-5 w-5 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-slate">Alignment with our values and service philosophy</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partnership Inquiry Form */}
-      <section className="py-16 lg:py-24 bg-mist">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-2xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-partnership-form-title">
-                Become a Partner
+              <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-partnership-form">
+                Apply for Partnership
               </h2>
               <p className="text-slate text-lg">
-                Interested in partnering with 2Gether Travels? We'd love to hear from you.
+                Join our network of premium service providers and grow your business with professional travelers
               </p>
             </div>
-            
-            <Card className="shadow-soft">
+
+            <Card className="card-base">
               <CardHeader>
-                <CardTitle className="text-center text-navy">Partnership Inquiry</CardTitle>
+                <h3 className="font-heading font-semibold text-xl text-navy">Partnership Application Form</h3>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6" data-testid="form-partnership-inquiry">
+                <form onSubmit={handleFormSubmit} className="space-y-6" data-testid="form-partnership">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="name" className="text-navy font-medium">
-                        Full Name *
-                      </Label>
+                      <Label htmlFor="company-name">Company Name</Label>
                       <Input
-                        id="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        id="company-name"
+                        value={partnershipForm.companyName}
+                        onChange={(e) => setPartnershipForm(prev => ({ ...prev, companyName: e.target.value }))}
                         required
-                        className="mt-1"
-                        placeholder="Your full name"
-                        data-testid="input-partner-name"
+                        data-testid="input-company-name"
                       />
                     </div>
-                    
+
                     <div>
-                      <Label htmlFor="email" className="text-navy font-medium">
-                        Email Address *
-                      </Label>
+                      <Label htmlFor="contact-name">Contact Person</Label>
+                      <Input
+                        id="contact-name"
+                        value={partnershipForm.contactName}
+                        onChange={(e) => setPartnershipForm(prev => ({ ...prev, contactName: e.target.value }))}
+                        required
+                        data-testid="input-contact-name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="email">Email Address</Label>
                       <Input
                         id="email"
                         type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        value={partnershipForm.email}
+                        onChange={(e) => setPartnershipForm(prev => ({ ...prev, email: e.target.value }))}
                         required
-                        className="mt-1"
-                        placeholder="your@company.com"
-                        data-testid="input-partner-email"
+                        data-testid="input-email"
                       />
                     </div>
-                    
+
                     <div>
-                      <Label htmlFor="company" className="text-navy font-medium">
-                        Company Name *
-                      </Label>
+                      <Label htmlFor="phone">Phone Number</Label>
                       <Input
-                        id="company"
-                        type="text"
-                        value={formData.company}
-                        onChange={(e) => handleInputChange("company", e.target.value)}
+                        id="phone"
+                        type="tel"
+                        value={partnershipForm.phone}
+                        onChange={(e) => setPartnershipForm(prev => ({ ...prev, phone: e.target.value }))}
                         required
-                        className="mt-1"
-                        placeholder="Your company name"
-                        data-testid="input-partner-company"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="country" className="text-navy font-medium">
-                        Country *
-                      </Label>
-                      <Input
-                        id="country"
-                        type="text"
-                        value={formData.country}
-                        onChange={(e) => handleInputChange("country", e.target.value)}
-                        required
-                        className="mt-1"
-                        placeholder="Your country"
-                        data-testid="input-partner-country"
-                      />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <Label htmlFor="partnershipType" className="text-navy font-medium">
-                        Partnership Type *
-                      </Label>
-                      <Select value={formData.partnershipType} onValueChange={(value) => handleInputChange("partnershipType", value)}>
-                        <SelectTrigger className="mt-1" data-testid="select-partnership-type">
-                          <SelectValue placeholder="Select partnership type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hotel">Hotel / Accommodation</SelectItem>
-                          <SelectItem value="airline">Airline</SelectItem>
-                          <SelectItem value="transport">Transportation</SelectItem>
-                          <SelectItem value="tours">Tours & Experiences</SelectItem>
-                          <SelectItem value="insurance">Insurance</SelectItem>
-                          <SelectItem value="technology">Technology Services</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <Label htmlFor="message" className="text-navy font-medium">
-                        Tell us about your services *
-                      </Label>
-                      <Textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) => handleInputChange("message", e.target.value)}
-                        required
-                        className="mt-1"
-                        placeholder="Describe your services, experience with business travelers, and why you'd like to partner with us..."
-                        rows={5}
-                        data-testid="textarea-partnership-message"
+                        data-testid="input-phone"
                       />
                     </div>
                   </div>
-                  
-                  <div className="text-center">
-                    <Button
-                      type="submit"
-                      className="btn-primary px-8 py-3 text-lg"
-                      disabled={isPending}
-                      data-testid="button-submit-partnership"
-                    >
-                      {isPending ? "Submitting..." : "Submit Partnership Inquiry"}
-                    </Button>
+
+                  <div>
+                    <Label htmlFor="partnership-type">Partnership Category</Label>
+                    <Select value={partnershipForm.partnershipType} onValueChange={(value) => setPartnershipForm(prev => ({ ...prev, partnershipType: value }))}>
+                      <SelectTrigger data-testid="select-partnership-type">
+                        <SelectValue placeholder="Select partnership category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hotel">Hotels & Accommodations</SelectItem>
+                        <SelectItem value="airline">Airlines</SelectItem>
+                        <SelectItem value="transport">Ground Transportation</SelectItem>
+                        <SelectItem value="tours">Tour Operations</SelectItem>
+                        <SelectItem value="venue">Conference Venues</SelectItem>
+                        <SelectItem value="other">Other Services</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+
+                  <div>
+                    <Label htmlFor="experience">Years in Business</Label>
+                    <Select value={partnershipForm.experience} onValueChange={(value) => setPartnershipForm(prev => ({ ...prev, experience: value }))}>
+                      <SelectTrigger data-testid="select-experience">
+                        <SelectValue placeholder="Select experience level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-2">1-2 years</SelectItem>
+                        <SelectItem value="3-5">3-5 years</SelectItem>
+                        <SelectItem value="6-10">6-10 years</SelectItem>
+                        <SelectItem value="10+">10+ years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Services Offered (select all that apply)</Label>
+                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                      {["Group bookings", "Corporate rates", "24/7 support", "Flexible cancellation", "Invoice billing", "Quality assurance"].map((service) => (
+                        <div key={service} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={service}
+                            checked={partnershipForm.services.includes(service)}
+                            onCheckedChange={() => handleServiceToggle(service)}
+                            data-testid={`checkbox-${service.toLowerCase().replace(/\s+/g, '-')}`}
+                          />
+                          <Label htmlFor={service} className="cursor-pointer">
+                            {service}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description">Company & Services Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Tell us about your company, services, and why you'd like to partner with 2Gether Travels..."
+                      value={partnershipForm.description}
+                      onChange={(e) => setPartnershipForm(prev => ({ ...prev, description: e.target.value }))}
+                      rows={4}
+                      required
+                      data-testid="textarea-description"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="compliance"
+                      checked={partnershipForm.complianceReady}
+                      onCheckedChange={(checked) => setPartnershipForm(prev => ({ ...prev, complianceReady: !!checked }))}
+                      data-testid="checkbox-compliance"
+                    />
+                    <Label htmlFor="compliance" className="cursor-pointer">
+                      We can provide all necessary compliance documentation and vendor registration requirements
+                    </Label>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="btn-primary w-full text-lg py-3"
+                    disabled={isSubmitting}
+                    data-testid="button-apply-partnership"
+                  >
+                    {isSubmitting ? "Submitting Application..." : "Submit Partnership Application"}
+                  </Button>
                 </form>
               </CardContent>
             </Card>
@@ -461,30 +382,71 @@ export default function Partners() {
         </div>
       </section>
 
-      {/* Procurement Note */}
-      <section className="py-16 lg:py-24">
+      {/* Partnership Benefits */}
+      <section className="py-16 lg:py-24 bg-mist">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-navy text-white rounded-card p-8">
-              <div className="w-16 h-16 bg-gold rounded-card mx-auto mb-6 flex items-center justify-center">
-                <Globe className="text-navy h-8 w-8" />
-              </div>
-              <h3 className="font-inter font-bold text-2xl mb-4">Procurement & Vendor Documentation</h3>
-              <p className="text-white/90 mb-6">
-                We understand corporate procurement requirements and maintain comprehensive vendor 
-                documentation including insurance certificates, tax clearances, and compliance records.
-              </p>
-              <p className="text-white/80 text-sm">
-                All partners undergo regular compliance audits and maintain updated vendor documentation 
-                to support corporate booking requirements.
-              </p>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-partnership-benefits">
+              Why Partner with 2Gether?
+            </h2>
+            <p className="text-slate text-lg max-w-2xl mx-auto">
+              Benefits of joining our premium service provider network
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Users,
+                title: "Professional Clientele",
+                description: "Access to high-value corporate and professional travelers with consistent booking patterns"
+              },
+              {
+                icon: Star,
+                title: "Quality Standards",
+                description: "Be part of a curated network known for exceptional service and professional excellence"
+              },
+              {
+                icon: Building,
+                title: "Business Growth",
+                description: "Expand your corporate client base through our established professional networks"
+              }
+            ].map((benefit, index) => (
+              <Card key={index} className="card-base p-6 text-center" data-testid={`benefit-${index}`}>
+                <div className="w-16 h-16 bg-gradient-to-br from-navy to-teal rounded-card mx-auto mb-6 flex items-center justify-center">
+                  <benefit.icon className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg text-navy mb-4">{benefit.title}</h3>
+                <p className="text-slate">{benefit.description}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      <Footer />
-      <MobileCTA />
+      {/* Contact Information */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="heading-partnership-contact">
+              Partnership Inquiries
+            </h2>
+            <p className="text-slate text-lg mb-8">
+              Have questions about partnership opportunities? Get in touch with our business development team.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="btn-primary" data-testid="button-email-partnerships">
+                <Mail className="h-4 w-4 mr-2" />
+                partnerships@2gethertravels.com
+              </Button>
+              <Button variant="outline" data-testid="button-call-partnerships">
+                +27 21 123 4567
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,231 +1,207 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import MobileCTA from "@/components/MobileCTA";
+import { Users, Target, Globe, Award, Heart, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Users, Award, Globe, Heart, Target, Eye } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-
-const values = [
-  {
-    icon: Users,
-    title: "Professional Focus",
-    description: "We understand the unique needs of auditors and finance professionals, crafting experiences that facilitate meaningful business connections."
-  },
-  {
-    icon: Award,
-    title: "Excellence",
-    description: "From handpicked accommodations to carefully curated tours, we maintain the highest standards in every aspect of your travel experience."
-  },
-  {
-    icon: Globe,
-    title: "Cultural Connection",
-    description: "We bridge cultures and create opportunities for African professionals to connect, learn, and grow together."
-  },
-  {
-    icon: Heart,
-    title: "Personal Care",
-    description: "Every traveler receives personalized attention with 24/7 concierge support and comprehensive travel assistance."
-  }
-];
-
-const team = [
-  {
-    name: "Sarah Mitchell",
-    role: "Founder & CEO",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
-    description: "Former KPMG partner with 15 years in African audit markets"
-  },
-  {
-    name: "David Okafor", 
-    role: "Head of Operations",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
-    description: "Hospitality veteran with expertise in luxury corporate travel"
-  },
-  {
-    name: "Amira Hassan",
-    role: "Concierge Director", 
-    image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
-    description: "Cape Town local with 10+ years in executive travel services"
-  }
-];
 
 export default function About() {
   return (
-    <div className="min-h-screen" data-testid="page-about">
-      <Header />
-      
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="gradient-primary text-white py-20 lg:py-32">
+      <section className="bg-gradient-to-br from-navy to-afiia-blue text-white py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="bg-gold text-navy px-4 py-2 mb-6 text-sm font-medium">
+            <h1 className="font-heading font-bold text-4xl lg:text-6xl mb-6" data-testid="heading-about">
               About 2Gether Travels
-            </Badge>
-            <h1 className="font-inter font-bold text-4xl lg:text-6xl mb-6" data-testid="text-about-hero-title">
-              Bringing Professionals <span className="text-gold">Together</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-white/90 max-w-3xl mx-auto" data-testid="text-about-hero-subtitle">
-              We specialize in creating exceptional travel experiences for African finance professionals, 
-              with a focus on meaningful connections and seamless conference attendance.
+            <p className="text-xl lg:text-2xl mb-8 text-white/90">
+              Bringing professionals together, one journey at a time.
             </p>
+            <div className="bg-white/20 backdrop-blur-sm px-8 py-4 rounded-full inline-block">
+              <span className="font-medium">Founded 2019 • Cape Town, South Africa</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Story */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="heading-story">
+                Our Story
+              </h2>
+              <div className="space-y-4 text-slate text-lg">
+                <p>
+                  2Gether Travels was founded with a simple yet powerful vision: to create seamless travel experiences 
+                  that bring professional communities together. Born from the realization that business travel should 
+                  be more than just logistics, we specialize in creating meaningful connections through expertly 
+                  curated travel experiences.
+                </p>
+                <p>
+                  Our focus on the African Institute of Internal Auditors (AFIIA) and similar professional organizations 
+                  stems from our deep understanding of the unique needs of finance and audit professionals. We know that 
+                  your time is valuable, your standards are high, and your network is everything.
+                </p>
+                <p>
+                  What started as a boutique travel service in Cape Town has grown into a trusted partner for 
+                  professional conferences across Africa, with AFIIA 2026 representing our flagship commitment 
+                  to excellence in professional travel.
+                </p>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                alt="Professional team meeting" 
+                className="rounded-card shadow-soft w-full"
+                data-testid="img-story"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent rounded-card"></div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-16 lg:py-24">
+      <section className="py-16 lg:py-24 bg-mist">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            <div className="space-y-6" data-testid="section-mission">
-              <div className="flex items-center space-x-3 mb-4">
-                <Target className="h-8 w-8 text-teal" />
-                <h2 className="font-inter font-bold text-3xl text-navy">Our Mission</h2>
-              </div>
-              <p className="text-slate text-lg leading-relaxed">
-                To transform professional conference travel by creating meaningful connections between 
-                African finance professionals while providing exceptional, stress-free travel experiences 
-                that allow delegates to focus on what matters most - learning, networking, and growing their careers.
-              </p>
-              <p className="text-slate text-lg leading-relaxed">
-                We understand that attending international conferences like AFIIA 2026 is an investment 
-                in professional development, and we're committed to maximizing that investment through 
-                thoughtfully designed travel packages and unparalleled support.
-              </p>
-            </div>
-            
-            <div className="space-y-6" data-testid="section-vision">
-              <div className="flex items-center space-x-3 mb-4">
-                <Eye className="h-8 w-8 text-gold" />
-                <h2 className="font-inter font-bold text-3xl text-navy">Our Vision</h2>
-              </div>
-              <p className="text-slate text-lg leading-relaxed">
-                To become the leading travel partner for professional conferences across Africa, 
-                fostering a connected community of finance and audit professionals who drive 
-                economic growth and governance excellence across the continent.
-              </p>
-              <p className="text-slate text-lg leading-relaxed">
-                We envision a future where every professional conference becomes an opportunity 
-                not just for learning, but for building lasting relationships that transcend 
-                borders and create lasting impact across African economies.
-              </p>
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <Card className="card-base p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-teal rounded-card flex items-center justify-center mr-4">
+                    <Target className="h-6 w-6 text-white" />
+                  </div>
+                  <h2 className="font-heading font-bold text-2xl text-navy">Our Mission</h2>
+                </div>
+                <p className="text-slate text-lg">
+                  To deliver exceptional travel experiences that facilitate meaningful professional connections, 
+                  support the growth of African finance and audit communities, and set the standard for 
+                  business travel excellence across the continent.
+                </p>
+              </Card>
+
+              <Card className="card-base p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gold rounded-card flex items-center justify-center mr-4">
+                    <Globe className="h-6 w-6 text-navy" />
+                  </div>
+                  <h2 className="font-heading font-bold text-2xl text-navy">Our Vision</h2>
+                </div>
+                <p className="text-slate text-lg">
+                  To become the leading professional travel partner for conferences and events across Africa, 
+                  known for our deep understanding of professional communities and our commitment to creating 
+                  transformative travel experiences.
+                </p>
+              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-16 lg:py-24 bg-mist">
+      {/* Our Values */}
+      <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-values-title">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="heading-values">
               Our Values
             </h2>
             <p className="text-slate text-lg max-w-2xl mx-auto">
-              The principles that guide everything we do, ensuring exceptional experiences for every traveler
+              The principles that guide every aspect of our service
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => {
-              const IconComponent = value.icon;
-              return (
-                <div key={index} className="text-center group" data-testid={`card-value-${index}`}>
-                  <div className="w-16 h-16 bg-gradient-to-br from-navy to-teal rounded-card mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <IconComponent className="text-white h-8 w-8" />
-                  </div>
-                  <h3 className="font-inter font-semibold text-lg text-navy mb-4" data-testid={`text-value-title-${index}`}>
-                    {value.title}
-                  </h3>
-                  <p className="text-slate" data-testid={`text-value-description-${index}`}>
-                    {value.description}
-                  </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Heart,
+                title: "Professional Care",
+                description: "We understand the high standards of professional travelers and exceed them with personalized attention to detail.",
+                gradient: "from-navy to-teal"
+              },
+              {
+                icon: Shield,
+                title: "Trust & Reliability",
+                description: "Our reputation is built on consistent delivery, transparent communication, and unwavering reliability.",
+                gradient: "from-teal to-gold"
+              },
+              {
+                icon: Users,
+                title: "Community Focus",
+                description: "We're more than a travel service—we're part of the professional community we serve, invested in your success.",
+                gradient: "from-gold to-afiia-blue"
+              },
+              {
+                icon: Award,
+                title: "Excellence",
+                description: "We pursue excellence in every interaction, every booking, and every experience we create.",
+                gradient: "from-afiia-blue to-navy"
+              },
+              {
+                icon: Globe,
+                title: "African Pride",
+                description: "Proudly showcasing the best of Africa while connecting professionals across the continent and beyond.",
+                gradient: "from-navy to-afiia-green"
+              },
+              {
+                icon: Target,
+                title: "Innovation",
+                description: "Continuously improving our services through technology, feedback, and industry best practices.",
+                gradient: "from-afiia-green to-teal"
+              }
+            ].map((value, index) => (
+              <Card key={index} className="card-base p-6 text-center group" data-testid={`value-${index}`}>
+                <div className={`w-16 h-16 bg-gradient-to-br ${value.gradient} rounded-card mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <value.icon className="h-6 w-6 text-white" />
                 </div>
-              );
-            })}
+                <h3 className="font-heading font-semibold text-lg text-navy mb-4">{value.title}</h3>
+                <p className="text-slate">{value.description}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* AFIIA 2026 Focus */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="text-afiia-focus-title">
-                AFIIA 2026 Focus
-              </h2>
-              <p className="text-slate text-lg mb-6">
-                The African Federation of Institutes of Internal Auditors (AFIIA) Conference 2026 represents 
-                a pivotal moment for the internal audit profession across Africa. As the premier gathering 
-                of audit professionals on the continent, this conference will shape the future of governance, 
-                risk management, and internal audit practices.
-              </p>
-              <p className="text-slate text-lg mb-6">
-                Cape Town provides the perfect backdrop for this important event, offering world-class 
-                conference facilities, diverse cultural experiences, and numerous opportunities for 
-                professional networking in one of Africa's most vibrant business hubs.
-              </p>
-              <div className="bg-afiia-blue/10 rounded-card p-6 mb-6">
-                <h4 className="font-inter font-semibold text-navy mb-3">Conference Highlights</h4>
-                <ul className="space-y-2 text-slate">
-                  <li>• 500+ expected delegates from 25+ African countries</li>
-                  <li>• 3 days of intensive sessions and workshops</li>
-                  <li>• Networking events at premium Cape Town venues</li>
-                  <li>• Cultural tours showcasing South African heritage</li>
-                </ul>
-              </div>
-              <Link href="/packages">
-                <Button className="btn-primary" data-testid="button-view-afiia-packages">
-                  View AFIIA 2026 Packages
-                </Button>
-              </Link>
-            </div>
-            
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
-                alt="Professional conference setting in Cape Town"
-                className="rounded-card shadow-soft w-full"
-                data-testid="img-afiia-conference"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team */}
       <section className="py-16 lg:py-24 bg-mist">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-4" data-testid="text-team-title">
-              Meet Our Team
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="heading-afiia-focus">
+              Our AFIIA 2026 Commitment
             </h2>
-            <p className="text-slate text-lg max-w-2xl mx-auto">
-              Experienced professionals dedicated to making your conference experience exceptional
+            <p className="text-slate text-lg mb-8">
+              AFIIA 2026 represents more than just another conference—it's a pivotal moment for the African 
+              internal audit profession. As the official travel partner, we're committed to making this 
+              the most successful and memorable AFIIA conference yet.
             </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {team.map((member, index) => (
-              <div key={index} className="bg-white rounded-card shadow-soft p-8 text-center" data-testid={`card-team-${index}`}>
-                <img
-                  src={member.image}
-                  alt={`${member.name} professional headshot`}
-                  className="w-24 h-24 rounded-full mx-auto mb-6 object-cover"
-                  data-testid={`img-team-${index}`}
-                />
-                <h3 className="font-inter font-semibold text-xl text-navy mb-2" data-testid={`text-team-name-${index}`}>
-                  {member.name}
-                </h3>
-                <p className="text-teal font-medium mb-4" data-testid={`text-team-role-${index}`}>
-                  {member.role}
+
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <Card className="card-base p-6">
+                <h3 className="font-heading font-semibold text-lg text-navy mb-4">Why Cape Town?</h3>
+                <p className="text-slate">
+                  Cape Town offers the perfect blend of business sophistication and natural beauty. With world-class 
+                  venues, excellent infrastructure, and the warmth of South African hospitality, it provides an 
+                  ideal setting for professional networking and knowledge sharing.
                 </p>
-                <p className="text-slate" data-testid={`text-team-description-${index}`}>
-                  {member.description}
+              </Card>
+
+              <Card className="card-base p-6">
+                <h3 className="font-heading font-semibold text-lg text-navy mb-4">Our Special Preparation</h3>
+                <p className="text-slate">
+                  We've spent months preparing for AFIIA 2026, personally visiting every hotel, testing every 
+                  transfer route, and curating experiences that will facilitate meaningful connections among 
+                  Africa's top audit professionals.
                 </p>
-              </div>
-            ))}
+              </Card>
+            </div>
+
+            <Link href="/packages">
+              <Button className="btn-primary text-lg px-8 py-4" data-testid="button-view-packages">
+                Explore AFIIA 2026 Packages
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -233,38 +209,55 @@ export default function About() {
       {/* Future Vision */}
       <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h2 className="font-inter font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="text-future-vision-title">
-              Beyond AFIIA 2026
-            </h2>
-            <p className="text-slate text-lg mb-8">
-              While our immediate focus is creating an exceptional AFIIA 2026 experience, we're building 
-              for the future. Our vision extends to supporting professional conferences across Africa, 
-              creating a network of connected professionals who drive excellence in governance and 
-              financial management across the continent.
-            </p>
-            <p className="text-slate text-lg mb-8">
-              Every journey we plan, every connection we facilitate, and every experience we create 
-              contributes to a stronger, more connected African professional community.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact">
-                <Button className="btn-primary" data-testid="button-contact-us">
-                  Get in Touch
-                </Button>
-              </Link>
-              <Link href="/partners">
-                <Button variant="outline" data-testid="button-become-partner">
-                  Become a Partner
-                </Button>
-              </Link>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                alt="African business professionals networking" 
+                className="rounded-card shadow-soft w-full"
+                data-testid="img-future"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent rounded-card"></div>
+            </div>
+
+            <div>
+              <h2 className="font-heading font-bold text-3xl lg:text-4xl text-navy mb-6" data-testid="heading-future">
+                Looking Ahead
+              </h2>
+              <div className="space-y-4 text-slate text-lg">
+                <p>
+                  Beyond AFIIA 2026, we envision 2Gether Travels as the go-to partner for professional 
+                  conferences across Africa. We're already working on expanding our services to other 
+                  major cities and developing partnerships with leading professional associations.
+                </p>
+                <p>
+                  Our goal is to create a network of seamless professional travel experiences that 
+                  strengthen business relationships, facilitate knowledge transfer, and contribute to 
+                  the growth of African professional communities.
+                </p>
+                <p>
+                  Whether it's the next AFIIA conference, a regional accounting summit, or a specialized 
+                  audit workshop, we're committed to being there, ensuring that every journey brings 
+                  professionals together in meaningful ways.
+                </p>
+              </div>
+
+              <div className="mt-8">
+                <Link href="/contact">
+                  <Button className="btn-accent mr-4" data-testid="button-contact">
+                    Get in Touch
+                  </Button>
+                </Link>
+                <Link href="/partners">
+                  <Button variant="outline" data-testid="button-partnerships">
+                    Partnership Opportunities
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
-      <Footer />
-      <MobileCTA />
     </div>
   );
 }
